@@ -486,14 +486,18 @@ function M.openMenu(bufnr)
 	vim.keymap.set("n", mappings.next_item, function()
 		closeMenu()
 		persist.next()
+<<<<<<< HEAD
 		if config.getState("cycle_mode") then
 			M.openMenu()
 		end
+=======
+>>>>>>> upstream/master
 	end, menuKeymapOpts)
 
 	vim.keymap.set("n", mappings.prev_item, function()
 		closeMenu()
 		persist.previous()
+<<<<<<< HEAD
 		if config.getState("cycle_mode") then
 			M.openMenu()
 		end
@@ -502,6 +506,11 @@ function M.openMenu(bufnr)
 	vim.keymap.set("n", "<Esc>", closeMenu, menuKeymapOpts)
 	vim.keymap.set("n", "<Tab>", closeMenu, menuKeymapOpts)
 	vim.keymap.set("n", "<CR>", closeMenu, menuKeymapOpts)
+=======
+	end, menuKeymapOpts)
+
+	vim.keymap.set("n", "<Esc>", closeMenu, menuKeymapOpts)
+>>>>>>> upstream/master
 
 	vim.keymap.set("n", mappings.delete_mode, function()
 		if vim.b.arrow_current_mode == "delete_mode" then
