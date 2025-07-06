@@ -1,3 +1,6 @@
+# Fork Features
+This fork adds an option to keep the menu open when cycling through saved files with next/previous, and adds Tab and CR as keybinds to close the menu.
+
 # arrow.nvim
 
 Arrow.nvim is a plugin made to bookmarks files (like harpoon) using a single UI (and single keymap). 
