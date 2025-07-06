@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the fork's master
+      - name: Checkout fork's master
         uses: actions/checkout@v4
         with:
           ref: master
@@ -20,29 +20,30 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream and fetch
+      - name: Add upstream remote and fetch
         run: |
           git remote add upstream https://github.com/otavioschwanck/arrow.nvim.git
           git fetch upstream
 
-      - name: Create merge commit with conflict markers
+      - name: Create a new branch and attempt merge (without committing)
         run: |
+          git checkout -b upstream-sync
           git merge upstream/master --allow-unrelated-histories || true
-          git add .
-          git commit -m "WIP: Sync with upstream (conflicts present)" || echo "Nothing to commit"
+
+      - name: Push merge attempt branch (with conflict state)
+        run: |
+          git push origin upstream-sync --force
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "WIP: Sync with upstream"
-          title: "Sync fork with upstream (conflicts to resolve)"
+          title: "Sync fork with upstream"
           body: |
-            This PR attempts to sync your fork with the upstream repository.
-            
-            ⚠️ Merge conflicts were detected and need to be resolved manually.
+            This PR merges `upstream/master` into your fork's `master`.
 
-            Files contain standard Git conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
+            ⚠️ Merge conflicts must be resolved manually in the PR interface.
           base: master
           branch: upstream-sync
-          delete-branch: true
+          commit-message: "Sync with upstream"
+          delete-branch: false
