@@ -1,0 +1,37 @@
+name: Sync Fork with Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+  workflow_dispatch:     # Allows manual triggering from the Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your fork's master branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: master
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote and fetch
+        run: |
+          git remote add upstream https://github.com/otavioschwanck/arrow.nvim.git
+          git fetch upstream
+
+      - name: Merge upstream/master into fork/master
+        run: |
+          git checkout master
+          git merge upstream/master --allow-unrelated-histories -m "Sync with upstream"
+
+      - name: Push changes back to your fork
+        uses: ad-m/github-push-action@v0.8.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
