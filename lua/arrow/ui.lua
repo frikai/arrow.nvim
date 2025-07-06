@@ -500,6 +500,8 @@ function M.openMenu(bufnr)
 	end, menuKeymapOpts)
 
 	vim.keymap.set("n", "<Esc>", closeMenu, menuKeymapOpts)
+	vim.keymap.set("n", "<Tab>", closeMenu, menuKeymapOpts)
+	vim.keymap.set("n", "<CR>", closeMenu, menuKeymapOpts)
 
 	vim.keymap.set("n", mappings.delete_mode, function()
 		if vim.b.arrow_current_mode == "delete_mode" then
