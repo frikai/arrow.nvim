@@ -27,7 +27,7 @@ jobs:
 
       - name: Merge upstream/master into fork/master
         run: |
-          git merge upstream/master || true
+          git merge upstream/master --allow-unrelated-histories || true
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
