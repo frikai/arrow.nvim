@@ -2,18 +2,17 @@ name: Sync Fork with Upstream
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight UTC
-  workflow_dispatch:     # Allows manual trigger from GitHub Actions UI
+    - cron: '0 0 * * *'  # Daily at midnight UTC
+  workflow_dispatch:
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout your fork
+      - name: Checkout the fork's master
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
           ref: master
 
       - name: Set up Git
@@ -21,37 +20,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream remote
+      - name: Add upstream and fetch
         run: |
           git remote add upstream https://github.com/otavioschwanck/arrow.nvim.git
           git fetch upstream
 
-      - name: Create sync branch
+      - name: Merge upstream/master into fork/master
         run: |
-          git checkout -b upstream-sync
           git merge upstream/master || true
 
-      - name: Commit merge conflicts (if any)
-        run: |
-          git add .
-          git commit -m "Sync with upstream (auto PR)" || echo "No changes to commit"
-
-      - name: Push sync branch
-        uses: ad-m/github-push-action@v0.8.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: upstream-sync
-          force: true
-
-      - name: Create pull request
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Sync with upstream"
           title: "Sync fork with upstream"
           body: |
-            This pull request merges changes from the original repo (upstream) [otavioschwanck/arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) into your fork.
-            Resolve any conflicts if present, and merge to keep your fork up to date.
+            This PR merges changes from the upstream repo [otavioschwanck/arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) into your fork.
+            Please review and resolve any conflicts if necessary.
           base: master
           branch: upstream-sync
           delete-branch: true
