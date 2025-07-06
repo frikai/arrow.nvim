@@ -1,49 +1,60 @@
-name: Sync Fork with Upstream
+name: Track and Sync Upstream Commits
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Daily at midnight UTC
+    - cron: '0 0 * * *'  # Run daily
   workflow_dispatch:
 
 jobs:
-  sync:
+  sync-upstream:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout fork's master
+      - name: Checkout fork
         uses: actions/checkout@v4
         with:
           ref: master
+          fetch-depth: 0  # Needed for full history
 
-      - name: Set up Git
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Add upstream remote and fetch
+      - name: Add and fetch upstream
         run: |
           git remote add upstream https://github.com/otavioschwanck/arrow.nvim.git
           git fetch upstream
 
-      - name: Create a new branch and attempt merge (without committing)
+      - name: Create new branch for sync
         run: |
           git checkout -b upstream-sync
-          git merge upstream/master --allow-unrelated-histories || true
 
-      - name: Push merge attempt branch (with conflict state)
+      - name: Cherry-pick new commits
         run: |
-          git push origin upstream-sync --force
+          # Find commits in upstream/master not in origin/master
+          COMMITS=$(git log master..upstream/master --oneline --reverse | awk '{print $1}')
+          echo "Found upstream commits: $COMMITS"
+
+          for COMMIT in $COMMITS; do
+            echo "Cherry-picking $COMMIT"
+            git cherry-pick $COMMIT || {
+              echo "Conflict on $COMMIT, aborting cherry-pick"
+              git cherry-pick --abort
+              break
+            }
+          done
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          title: "Sync fork with upstream"
+          commit-message: "Cherry-picked upstream commits"
+          title: "Sync from upstream (cherry-picked)"
           body: |
-            This PR merges `upstream/master` into your fork's `master`.
+            This PR includes cherry-picked commits from `otavioschwanck/arrow.nvim`.
 
-            ⚠️ Merge conflicts must be resolved manually in the PR interface.
+            Review and resolve any conflicts if necessary.
           base: master
           branch: upstream-sync
-          commit-message: "Sync with upstream"
-          delete-branch: false
+          delete-branch: true
