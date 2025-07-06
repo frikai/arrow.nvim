@@ -89,9 +89,15 @@ function M.setup(opts)
 	config.setState("save_key", save_keys[opts.save_key] or save_keys.cwd)
 	config.setState("save_key_name", opts.save_key or "cwd")
 	config.setState("save_key_cached", config.getState("save_key")())
+	config.setState("cycle_mode", opts.cycle_mode or false)
 
 	if leader_key then
-		vim.keymap.set("n", leader_key, ui.openMenu, { noremap = true, silent = true, nowait = true, desc = "Arrow File Mappings" })
+		vim.keymap.set(
+			"n",
+			leader_key,
+			ui.openMenu,
+			{ noremap = true, silent = true, nowait = true, desc = "Arrow File Mappings" }
+		)
 	end
 
 	if buffer_leader_key then

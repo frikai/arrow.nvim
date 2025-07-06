@@ -486,11 +486,17 @@ function M.openMenu(bufnr)
 	vim.keymap.set("n", mappings.next_item, function()
 		closeMenu()
 		persist.next()
+		if config.getState("cycle_mode") then
+			M.openMenu()
+		end
 	end, menuKeymapOpts)
 
 	vim.keymap.set("n", mappings.prev_item, function()
 		closeMenu()
 		persist.previous()
+		if config.getState("cycle_mode") then
+			M.openMenu()
+		end
 	end, menuKeymapOpts)
 
 	vim.keymap.set("n", "<Esc>", closeMenu, menuKeymapOpts)
