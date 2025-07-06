@@ -25,19 +25,24 @@ jobs:
           git remote add upstream https://github.com/otavioschwanck/arrow.nvim.git
           git fetch upstream
 
-      - name: Merge upstream/master into fork/master
+      - name: Create merge commit with conflict markers
         run: |
           git merge upstream/master --allow-unrelated-histories || true
+          git add .
+          git commit -m "WIP: Sync with upstream (conflicts present)" || echo "Nothing to commit"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Sync with upstream"
-          title: "Sync fork with upstream"
+          commit-message: "WIP: Sync with upstream"
+          title: "Sync fork with upstream (conflicts to resolve)"
           body: |
-            This PR merges changes from the upstream repo [otavioschwanck/arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) into your fork.
-            Please review and resolve any conflicts if necessary.
+            This PR attempts to sync your fork with the upstream repository.
+            
+            ⚠️ Merge conflicts were detected and need to be resolved manually.
+
+            Files contain standard Git conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`).
           base: master
           branch: upstream-sync
           delete-branch: true
